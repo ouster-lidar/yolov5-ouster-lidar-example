@@ -139,6 +139,12 @@ class Model(nn.Module):
             y.append(yi)
         y = self._clip_augmented(y)  # clip augmented tails
         return torch.cat(y, 1), None  # augmented inference, train
+    
+    def _nullify_recompute_scale_factor_in_upsample(self, model):
+        for m in model.modules():
+            if isinstance(m, nn.Upsample):
+                if not hasattr(m, 'recompute_scale_factor'):
+                    m.recompute_scale_factor = None
 
     def _forward_once(self, x, profile=False, visualize=False):
         y, dt = [], []  # outputs
@@ -147,6 +153,7 @@ class Model(nn.Module):
                 x = y[m.f] if isinstance(m.f, int) else [x if j == -1 else y[j] for j in m.f]  # from earlier layers
             if profile:
                 self._profile_one_layer(m, x, dt)
+            self._nullify_recompute_scale_factor_in_upsample(m)
             x = m(x)  # run
             y.append(x if m.i in self.save else None)  # save output
             if visualize:

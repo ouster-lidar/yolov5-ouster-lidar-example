@@ -170,7 +170,7 @@ def run(weights=ROOT / 'yolov5s.pt',  # model.pt path(s)
             im0 = annotator.result()
             if view_img:
                 cv2.imshow(str(p), im0)
-                cv2.waitKey(1)  # 1 millisecond
+                cv2.waitKey(1000)  # 1 second
 
             # Save results (image with detections)
             if save_img:
